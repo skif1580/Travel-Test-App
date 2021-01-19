@@ -62,6 +62,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView(view)
         viewModel.liveData.observe(viewLifecycleOwner, this::setState)
+        mapAdapter.clickListener { lat, lng ->
+            val position = LatLng(lat, lng)
+            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
+        }
     }
 
     private fun setState(state: State) =
@@ -96,13 +100,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
         myMap = map!!
-        val sydney = LatLng(-34.0, 151.0)
-        myMap.addMarker(
-            MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney")
-        )
-        myMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
 
     private fun showDefaultState() {
@@ -118,15 +115,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun showSuccessState(itemMap: ItemPlaces) {
         binding.rvListMarker.isVisible = true
         mapAdapter.setList(itemMap)
+        var place: LatLng? = null
         itemMap.places.forEach {
-            val place = LatLng(it.lat, it.lng)
-            myMap.addMarker(MarkerOptions().position(place))
-        }
+            place = LatLng(it.lat, it.lng)
+            myMap.addMarker(MarkerOptions().position(place!!))
 
+        }
+        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 15f))
     }
 
     private fun showErrorState(error: String) {
         Toast.makeText(this.context, error, Toast.LENGTH_SHORT).show()
     }
-
 }

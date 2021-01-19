@@ -9,9 +9,15 @@ import com.englishgalaxy.traveltestapp.net.responce.Place
 
 class MapAdapter : RecyclerView.Adapter<MapAdapter.ViewHolder>() {
 
-    class ViewHolder(val mapItem: ItemMapBinding) : RecyclerView.ViewHolder(mapItem.root) {}
+    class ViewHolder(val mapItem: ItemMapBinding) : RecyclerView.ViewHolder(mapItem.root) {
+    }
 
     private var listPlaces = listOf<Place>()
+    private var clickListenerCallback: ((lat: Double, long: Double) -> Unit)? = null
+
+    fun clickListener(po: (id: Double, long: Double) -> Unit) {
+        clickListenerCallback = po
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemMapBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -23,6 +29,9 @@ class MapAdapter : RecyclerView.Adapter<MapAdapter.ViewHolder>() {
         with(holder) {
             with(mapItem) {
                 tvNamePlace.text = item.name
+                mapItem.rootView.setOnClickListener {
+                    clickListenerCallback?.invoke(item.lat, item.lng)
+                }
             }
         }
     }
